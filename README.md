@@ -1,0 +1,2 @@
+# twitter-serverless-watchdog
+Twitterの特定のアカウントを監視し、任意のキーワードを検知したらお知らせするbot
