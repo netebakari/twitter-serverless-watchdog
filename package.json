@@ -1,6 +1,6 @@
 {
   "name": "twitter-serverless-watchdog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "特定の人のTwitterアカウントを監視し、特定のキーワードがツイートされたら通知する",
   "main": "index.js",
   "scripts": {
