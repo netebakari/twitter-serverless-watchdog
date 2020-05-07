@@ -1,6 +1,6 @@
 {
   "name": "twitter-serverless-watchdog",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "特定の人のTwitterアカウントを監視し、特定のキーワードがツイートされたら通知する",
   "main": "index.js",
   "scripts": {
@@ -29,7 +29,6 @@
   "license": "MIT",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.51",
-    "@types/lodash": "^4.14.150",
     "@types/mocha": "^7.0.2",
     "@types/node": "^13.13.5",
     "@types/twit": "^2.2.24",
@@ -45,7 +44,6 @@
   },
   "dependencies": {
     "dotenv": "^8.2.0",
-    "lodash": "^4.17.15",
     "twit": "^2.2.11"
   }
 }
