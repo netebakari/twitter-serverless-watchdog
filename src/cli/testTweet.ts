@@ -3,14 +3,24 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const hoge = require("../index");
 import TwitterClient from "../twitterClient";
 import * as env from "../env";
+import ConfigOnDynamoDb from "../configOnDynamoDb";
 
 const testTweet = async () => {
   try {
-    const client = new TwitterClient(env.twitterToken);
-    await client.sendTweet("@null this is a test tweet from my client.");
+    const configOnDynamoDb = new ConfigOnDynamoDb(
+      process.argv[2],
+      env.dynamoDbTableName,
+      env.dynamoDbKeyName,
+      env.dynamoDbKeyValue,
+      true
+    );
+    const config = await configOnDynamoDb.getConfig();
+    const client = new TwitterClient(config.token);
+    console.log("Record on DynamoDB:");
+    console.log(config);
+    await client.sendTweet(`@null this is a test tweet from my client at ${new Date().toUTCString()}`);
     console.log("OK!");
   } catch (e) {
     console.log("ERROR!");
