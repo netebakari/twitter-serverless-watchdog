@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/src/cli/index.js",
+    "test-tweet": "node dist/src/cli/testTweet.js",
     "test": "npx mocha dist/test/test.js",
     "build": "./build.sh"
   },

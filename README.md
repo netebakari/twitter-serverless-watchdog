@@ -2,11 +2,14 @@
 特定の人のTwitterアカウントを見守り、予め指定しておいたキーワードを含むツイートが見つかったらツイート＋引用RTでお知らせするツール
 
 # 動作環境
-AWS Lambda (Node.js v8.10) + DynamoDB + S3 + CloudWatch Events
+AWS Lambda (Node.js v12) + DynamoDB + S3 + CloudWatch Events
 
 # 事前準備
+## Twitterアカウント＆トークンを準備
+開発者として登録し、Twitterアプリケーションの登録を行って各種トークンを取得する。人は監視されていることに気付くと嫌な気持ちになるのでもちろん鍵がかかっているアカウントで認証を行った方が良い。
+
 ## DynamoDB
-DynamoDBに適当なテーブルを作り（キーは1個だけで一意に特定できる必要がある）、次のような形のレコードを入れる
+DynamoDBに適当なテーブルを作り（キーは1個だけで一意に特定できる必要がある）、次のような形のレコードを入れる。
 
 ```json
 {
@@ -22,13 +25,25 @@ DynamoDBに適当なテーブルを作り（キーは1個だけで一意に特�
 * `lastId` は「これよりもtweet status idが大きいものを処理対象とする」という意味。スクリプト終了時、取得したツイートの最大値に更新される。
 * `screenNames` には監視対象アカウントのスクリーンネームを書く。
 
-テーブルとレコードを作ったら、このテーブル名、テーブルのキー名（ここでは `tableKey` ）、レコードのキー（ここでは `watchdog`）を `config.ts` に記入する。
+## Lambda関数登録・環境変数登録
+`twitter-serverless-watchdog.zip` をアップロードしてLambda関数をデプロイし、環境変数を設定する。特に暗号化はかけていない。
 
-## Twitterアカウント＆トークンを準備
-監視＆通知のためのアカウントを用意する（もちろん鍵がかかっていた方が良い）。適当にconsumer_key, consumer_secret, access_token, access_token_secret を確保して `config.ts` に記入する。
+| 環境変数名            | 意味                                              |
+|----------------------|---------------------------------------------------|
+| consumer_key         | Twitterコンシューマキー                            |
+| consumer_secret      | Twitterコンシューマシークレット                     |
+| access_token         | Twitterアクセストークン                            |
+| access_token_secret  | Twitterトークンシークレット                         |
+| region               | DynamoDB, S3のリージョン                           |
+| dynamoDbTableName    | DynamoDBのテーブル名                               |
+| dynamoDbKeyName      | DynamoDBのキー                                    |
+| dynamoDbKeyValue     | DynamoDBのキーの値                                |
+| s3BucketName         | 検索キーワードが記入されるS3バケット名（後述）       |
+| s3KeywordKeyName     | 検索キーワードが記入されるS3オブジェクト名（後述）    |
+
 
 ## S3バケットを準備
-監視対象のツイートを見つけたら、まず最初に次のようなツイートが送信される。
+監視対象のツイートを検知したら次のようなツイートが送信される。
 
 ```
 1000000000000000000以降のチェックを行い、N件の監視対象ツイートが見つかりました。 @null宛で引用RTします。
@@ -36,7 +51,7 @@ DynamoDBに適当なテーブルを作り（キーは1個だけで一意に特�
 現在の監視キーワード: https://ap-northeast-1.amazonaws.com/YOUR-BUCKET-NAME/keywords.txt
 ```
 
-この「現在の監視キーワード」一覧はS3に置いたテキストファイルに出力するので（長すぎて1ツイートに入らなくなると困るため）、このためのS3バケットを作成し、Static website hostingを有効にしておく。
+この「現在の監視キーワード」一覧はS3に置いたテキストファイルに出力するので（監視ワードが長すぎて1ツイートに入らなくなると困るため）、このためのS3バケットを作成し、Static website hostingを有効にしておく。
 
 ## IAMロールを作成
 DynamoDBとS3にアクセスできるロールを作成する。
@@ -116,4 +131,4 @@ $ npm start
 ```
 $ npm run package
 ```
-で `myFunc.zip` が生成される（twitが大きいので軽く10MBを超える）。これをS3に一度アップロードしてLambdaを作成。あとはCloudWatch Eventsで定期実行するだけ。
+で `twitter-serverless-watchdog.zip` が生成される。これをS3に一度アップロードしてLambdaを作成。あとはCloudWatch Eventsで定期実行するだけ。

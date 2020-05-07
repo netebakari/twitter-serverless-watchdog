@@ -1,5 +1,4 @@
 export declare interface ConfigRecordType {
-  Provider: string;
   lastId: string;
   screenNames: string[];
   keywords: string[];

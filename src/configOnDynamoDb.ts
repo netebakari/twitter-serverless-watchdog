@@ -1,8 +1,8 @@
-import * as Config from "./config";
+import * as env from "./env";
 import * as AWS from "aws-sdk";
 import * as Types from "./types";
 import * as _ from "lodash";
-const dynamo = new AWS.DynamoDB.DocumentClient({ region: Config.dynamoDb.region });
+const dynamo = new AWS.DynamoDB.DocumentClient({ region: env.dynamoDb.region });
 
 /**
  * DynamoDBの設定を読み書きするクラス
@@ -18,13 +18,13 @@ export default class ConfigOnDynamoDb {
   /**
    * DynamoDB上の設定レコードを取得する。内部に元の値を保持しているので値を書き換えても特に影響はない
    */
-  async getConfig() {
+  async getConfig(): Promise<Types.ConfigRecordType> {
     const data = await dynamo
       .query({
-        TableName: Config.dynamoDb.tableName,
+        TableName: env.dynamoDb.tableName,
         KeyConditionExpression: "#key = :val",
-        ExpressionAttributeNames: { "#key": Config.dynamoDb.keyName },
-        ExpressionAttributeValues: { ":val": Config.dynamoDb.keyValue }
+        ExpressionAttributeNames: { "#key": env.dynamoDb.keyName },
+        ExpressionAttributeValues: { ":val": env.dynamoDb.keyValue },
       })
       .promise();
 
@@ -33,13 +33,13 @@ export default class ConfigOnDynamoDb {
     }
 
     this.record = data.Items[0] as Types.ConfigRecordType;
-    return _.cloneDeep(this.record);
+    return _.cloneDeep<Types.ConfigRecordType>(this.record);
   }
 
   /**
    * DynamoDB上の設定レコードの中のsinceId（レコード上はlastId）を更新する
    */
-  async updateSinceId(sinceId: string) {
+  async updateSinceId(sinceId: string): Promise<void> {
     if (this.record === undefined) {
       throw new Error("call getConfig() first");
     }
@@ -49,7 +49,7 @@ export default class ConfigOnDynamoDb {
     } else {
       console.log(`DynamoDBを更新します: sinceId=${sinceId}`);
       this.record.lastId = sinceId;
-      await dynamo.put({ TableName: Config.dynamoDb.tableName, Item: this.record }).promise();
+      await dynamo.put({ TableName: env.dynamoDb.tableName, Item: this.record }).promise();
     }
   }
 }

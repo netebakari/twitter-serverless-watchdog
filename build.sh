@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if [ -e myFunc.zip ]; then
-   rm myFunc.zip
+if [ -e twitter-serverless-watchdog.zip ]; then
+   rm twitter-serverless-watchdog.zip
 fi
 
 if [ -e node_modules ]; then
@@ -17,7 +17,7 @@ rm -rf node_modules
 npm install --production
 rm -rf dist/src/cli
 cd dist/src
-zip ../../myFunc.zip -r *
+zip ../../twitter-serverless-watchdog.zip -r *
 cd ../..
-zip myFunc.zip -r node_modules/
+zip twitter-serverless-watchdog.zip -r node_modules/
 npm install
