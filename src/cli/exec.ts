@@ -5,9 +5,9 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const hoge = require("../index");
 
-const func = async (event: any) => {
+const func = async (event: any, context: any) => {
   try {
-    const result = await hoge.handler(event);
+    const result = await hoge.handler(event, context);
     console.log("OK!");
     console.log(result);
   } catch (e) {
@@ -16,6 +16,11 @@ const func = async (event: any) => {
   }
 };
 
-func({
-  dryRun: true // trueを明示的に指定するとツイート送信は行わない（取得はやる）
-});
+func(
+  {
+    dryRun: true,
+  },
+  {
+    invokedFunctionArn: `arn:aws:lambda:${process.argv[2]}:999999999999:function:FUNCTIONNAME`,
+  }
+);

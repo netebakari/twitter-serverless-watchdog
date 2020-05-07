@@ -1,17 +1,32 @@
-import * as env from "./env";
 import * as AWS from "aws-sdk";
 import * as Types from "./types";
-import * as _ from "lodash";
-const dynamo = new AWS.DynamoDB.DocumentClient({ region: env.dynamoDb.region });
+
+type QueryParameterType = {
+  TableName: string;
+  KeyConditionExpression: string;
+  ExpressionAttributeNames: { [key: string]: string };
+  ExpressionAttributeValues: { [key: string]: string };
+};
 
 /**
  * DynamoDBの設定を読み書きするクラス
  */
 export default class ConfigOnDynamoDb {
-  private dryRun: boolean;
+  private queryParameter: QueryParameterType;
+  private tableName: string;
+  private client: AWS.DynamoDB.DocumentClient;
   private record: Types.ConfigRecord | undefined;
+  private dryRun: boolean;
 
-  constructor(dryRun = false) {
+  constructor(region: string, tableName: string, keyName: string, keyValue: string, dryRun = false) {
+    this.queryParameter = {
+      TableName: tableName,
+      KeyConditionExpression: "#key = :val",
+      ExpressionAttributeNames: { "#key": keyName },
+      ExpressionAttributeValues: { ":val": keyValue },
+    };
+    this.tableName = tableName;
+    this.client = new AWS.DynamoDB.DocumentClient({ region });
     this.dryRun = dryRun;
   }
 
@@ -19,14 +34,7 @@ export default class ConfigOnDynamoDb {
    * DynamoDB上の設定レコードを取得して返す。内部に元の値を保持しているので値を書き換えても特に影響はない
    */
   async getConfig(): Promise<Types.ConfigRecord> {
-    const data = await dynamo
-      .query({
-        TableName: env.dynamoDb.tableName,
-        KeyConditionExpression: "#key = :val",
-        ExpressionAttributeNames: { "#key": env.dynamoDb.keyName },
-        ExpressionAttributeValues: { ":val": env.dynamoDb.keyValue },
-      })
-      .promise();
+    const data = await this.client.query(this.queryParameter).promise();
 
     if (!data || !Array.isArray(data.Items) || data.Items.length === 0) {
       throw new Error("レコードが取れません");
@@ -36,7 +44,7 @@ export default class ConfigOnDynamoDb {
     Types.AssertsConfigRecord(record);
 
     this.record = record;
-    return _.cloneDeep<Types.ConfigRecord>(this.record);
+    return JSON.parse(JSON.stringify(this.record)) as Types.ConfigRecord;
   }
 
   /**
@@ -52,7 +60,7 @@ export default class ConfigOnDynamoDb {
     } else {
       console.log(`DynamoDBを更新します: sinceId=${sinceId}`);
       this.record.lastId = sinceId;
-      await dynamo.put({ TableName: env.dynamoDb.tableName, Item: this.record }).promise();
+      await this.client.put({ TableName: this.tableName, Item: this.record }).promise();
     }
   }
 }

@@ -10,6 +10,18 @@ export interface ConfigRecord {
   screenNames: string[];
   keywords: string[];
   token: TokenType;
+  s3: S3Type;
+}
+
+type S3Type = {
+  bucket: string;
+  key: string;
+};
+
+export function AssertsS3(arg: any): asserts arg is S3Type {
+  util.mustBeObject(arg);
+  util.mustBeString(arg, "bucket");
+  util.mustBeString(arg, "key");
 }
 
 /**
@@ -63,9 +75,10 @@ export function AssertsConfigRecord(arg: any): asserts arg is ConfigRecord {
   }
 
   AssertsTokenType(arg.token);
+  AssertsS3(arg.s3);
 }
 
-export declare interface Tweet {
+export interface Tweet {
   created_at: string;
   id: number;
   id_str: string;
@@ -79,7 +92,7 @@ export declare interface Tweet {
   in_reply_to_user_id_str?: string;
   in_reply_to_screen_name?: string;
 }
-export declare interface User {
+export interface User {
   id: number;
   id_str: string;
   name: string;

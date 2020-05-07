@@ -9,19 +9,10 @@ const getEnv = (name: string): string => {
   return result;
 };
 
-const dynamoDb = {
-  tableName: getEnv("dynamoDbTableName"),
-  keyName: getEnv("dynamoDbKeyName"),
-  keyValue: getEnv("dynamoDbKeyValue"),
-  region: getEnv("region"),
-};
-
-const s3 = {
-  bucket: getEnv("s3BucketName"),
-  keyName: getEnv("s3KeywordKeyName"),
-  region: getEnv("region"),
-};
+const dynamoDbTableName = getEnv("dynamoDbTableName");
+const dynamoDbKeyName = getEnv("dynamoDbKeyName");
+const dynamoDbKeyValue = getEnv("dynamoDbKeyValue");
 
 const tweetsCountToRetrieve = 40;
 
-export { dynamoDb, s3, tweetsCountToRetrieve };
+export { dynamoDbTableName, dynamoDbKeyName, dynamoDbKeyValue, tweetsCountToRetrieve };
