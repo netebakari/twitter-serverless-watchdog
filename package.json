@@ -1,25 +1,51 @@
 {
-  "name": "watching-your-twitter",
-  "version": "1.0.0",
+  "name": "twitter-serverless-watchdog",
+  "version": "1.0.1",
   "description": "特定の人のTwitterアカウントを監視し、特定のキーワードがツイートされたら通知する",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/cli/exec.js",
-    "test-tweet": "node dist/cli/testTweet.js",
-    "package": "cd dist; zip -r ../myFunc.zip *; cd ..; zip -r -u myFunc.zip node_modules/",
-    "type-check": "tsc --noEmit"
+    "start": "node dist/src/cli/index.js",
+    "test-tweet": "node dist/src/cli/testTweet.js",
+    "test": "npx mocha dist/test/test.js",
+    "build": "./build.sh"
+  },
+  "keywords": [
+    "AWS",
+    "AWS Lambda",
+    "Twitter"
+  ],
+  "engines": {
+    "node": ">= 12",
+    "npm": ">= 6.13"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/netebakari/twitter-serverless-watchdog"
+  },
+  "prettier": {
+    "printWidth": 120
   },
   "author": "netebakari",
   "license": "MIT",
-  "dependencies": {
-    "aws-sdk": "^2.284.1",
-    "lodash": "^4.17.10",
-    "twit": "^2.2.11"
-  },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.6",
-    "@types/lodash": "^4.14.116",
-    "@types/node": "^10.3.3",
-    "typescript": "^2.9.1"
+    "@types/aws-lambda": "^8.10.51",
+    "@types/lodash": "^4.14.150",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.13.5",
+    "@types/twit": "^2.2.24",
+    "@typescript-eslint/eslint-plugin": "^2.31.0",
+    "@typescript-eslint/parser": "^2.31.0",
+    "aws-sdk": "^2.671.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.3",
+    "mocha": "^7.1.2",
+    "prettier": "^2.0.5",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "lodash": "^4.17.15",
+    "twit": "^2.2.11"
   }
 }
