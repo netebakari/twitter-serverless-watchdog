@@ -9,16 +9,16 @@ const dynamo = new AWS.DynamoDB.DocumentClient({ region: env.dynamoDb.region });
  */
 export default class ConfigOnDynamoDb {
   private dryRun: boolean;
-  private record: Types.ConfigRecordType | undefined;
+  private record: Types.ConfigRecord | undefined;
 
   constructor(dryRun = false) {
     this.dryRun = dryRun;
   }
 
   /**
-   * DynamoDB上の設定レコードを取得する。内部に元の値を保持しているので値を書き換えても特に影響はない
+   * DynamoDB上の設定レコードを取得して返す。内部に元の値を保持しているので値を書き換えても特に影響はない
    */
-  async getConfig(): Promise<Types.ConfigRecordType> {
+  async getConfig(): Promise<Types.ConfigRecord> {
     const data = await dynamo
       .query({
         TableName: env.dynamoDb.tableName,
@@ -32,8 +32,11 @@ export default class ConfigOnDynamoDb {
       throw new Error("レコードが取れません");
     }
 
-    this.record = data.Items[0] as Types.ConfigRecordType;
-    return _.cloneDeep<Types.ConfigRecordType>(this.record);
+    const record = data.Items[0];
+    Types.AssertsConfigRecord(record);
+
+    this.record = record;
+    return _.cloneDeep<Types.ConfigRecord>(this.record);
   }
 
   /**

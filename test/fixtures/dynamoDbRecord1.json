@@ -1,0 +1,12 @@
+{
+  "tablekey": "twitter-serverless-watchdog",
+  "keywords": ["ガソリン", "ナイフ", "カッター"],
+  "lastId": "1000000000000000000",
+  "screenNames": ["twitter", "abunai_hito", "kikenna_hito"],
+  "token": {
+    "consumer_key": "xxxxxxxxxxxxxxxxxxxxxxxxx",
+    "consumer_secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "access_token": "999999999999999999-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "access_token_secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  }
+}

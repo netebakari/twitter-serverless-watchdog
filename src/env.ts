@@ -9,13 +9,6 @@ const getEnv = (name: string): string => {
   return result;
 };
 
-const twitterToken = {
-  consumer_key: getEnv("consumer_key"),
-  consumer_secret: getEnv("consumer_secret"),
-  access_token: getEnv("access_token"),
-  access_token_secret: getEnv("access_token_secret"),
-};
-
 const dynamoDb = {
   tableName: getEnv("dynamoDbTableName"),
   keyName: getEnv("dynamoDbKeyName"),
@@ -31,4 +24,4 @@ const s3 = {
 
 const tweetsCountToRetrieve = 40;
 
-export { twitterToken, dynamoDb, s3, tweetsCountToRetrieve };
+export { dynamoDb, s3, tweetsCountToRetrieve };

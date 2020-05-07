@@ -6,10 +6,13 @@
 const hoge = require("../index");
 import TwitterClient from "../twitterClient";
 import * as env from "../env";
+import ConfigOnDynamoDb from "../configOnDynamoDb";
 
 const testTweet = async () => {
   try {
-    const client = new TwitterClient(env.twitterToken);
+    const configOnDynamoDb = new ConfigOnDynamoDb(true);
+    const config = await configOnDynamoDb.getConfig();
+    const client = new TwitterClient(config.token);
     await client.sendTweet("@null this is a test tweet from my client.");
     console.log("OK!");
   } catch (e) {

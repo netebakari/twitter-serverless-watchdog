@@ -5,10 +5,9 @@ import * as env from "./env";
 import TwitterClient from "./twitterClient";
 import ConfigOnDynamoDb from "./configOnDynamoDb";
 
-const dynamo = new AWS.DynamoDB.DocumentClient({ region: env.dynamoDb.region });
 const s3 = new AWS.S3();
 
-const updateS3text = async (text: string) => {
+const updateS3text = async (text: string): Promise<void> => {
   const params = {
     Body: text,
     Bucket: env.s3.bucket,
@@ -22,16 +21,16 @@ const updateS3text = async (text: string) => {
 /**
  * エントリーポイント
  */
-exports.handler = async (event: any, context: LambdaType.Context) => {
-  // Twitterクライアント（のラッパー）を生成。引数で dryRun にtrueが指定されていたらツイート送信は行わない
-  const twitterClient = new TwitterClient(env.twitterToken, event.dryRun);
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+exports.handler = async (event: any, context: LambdaType.Context): Promise<boolean> => {
   // DynamoDB上の設定を読み書きするクラス。引数で dryRun にtrueが指定されていたら更新は行わない
   const configOnDynamoDb = new ConfigOnDynamoDb(event.dryRun);
-
   const configOnDb = await configOnDynamoDb.getConfig();
   console.log("設定を取得しました");
-  console.log(configOnDb);
+
+  // Twitterクライアント（のラッパー）を生成。引数で dryRun にtrueが指定されていたらツイート送信は行わない
+  const twitterClient = new TwitterClient(configOnDb.token, event.dryRun);
 
   if (event.dryRun) {
     console.log("S3の更新はスキップします");
@@ -42,7 +41,7 @@ exports.handler = async (event: any, context: LambdaType.Context) => {
 
   // 見つかったツイートとその理由をここに入れる
   const founds: { tweet: Types.Tweet; keyword: string }[] = [];
-  let maxId = configOnDb.lastId;
+  let maxId = configOnDb.lastId ?? "1000000000000000000";
 
   for (const screenName of configOnDb.screenNames) {
     // DynamoDB上の設定で指定されたアカウントごとにツイートを適当に取得
@@ -83,9 +82,10 @@ exports.handler = async (event: any, context: LambdaType.Context) => {
         `@null 理由: "${found.keyword}"にマッチしました\n${TwitterClient.tweetToStatusUrl(found.tweet)}`
       );
     }
+
+    // 最終ステータスID更新
+    await configOnDynamoDb.updateSinceId(maxId);
   }
 
-  // 最終ステータスID更新
-  await configOnDynamoDb.updateSinceId(maxId);
   return true;
 };
