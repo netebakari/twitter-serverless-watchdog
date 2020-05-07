@@ -2,11 +2,11 @@
 特定の人のTwitterアカウントを見守り、予め指定しておいたキーワードを含むツイートが見つかったらツイート＋引用RTでお知らせするツール
 
 # 動作環境
-AWS Lambda (Node.js v12) + DynamoDB + S3 + CloudWatch Events
+AWS Lambda (Node.js v12.x) + DynamoDB + S3 + CloudWatch Events
 
 # 事前準備
 ## Twitterアカウント＆トークンを準備
-開発者として登録し、Twitterアプリケーションの登録を行って各種トークンを取得する。人は監視されていることに気付くと嫌な気持ちになるのでもちろん鍵がかかっているアカウントで認証を行った方が良い。
+開発者として登録し、Twitterアプリケーションの登録を行って各種トークンを取得する。人は誰かに監視されていることに気付くと特別な気持ちになりがちなのでもちろん鍵がかかっているアカウントで認証を行った方が良い。
 
 ## DynamoDB
 DynamoDBに適当なテーブルを作り（キーは1個だけで一意に特定できる必要がある）、次のような形のレコードを入れる。
@@ -24,23 +24,6 @@ DynamoDBに適当なテーブルを作り（キーは1個だけで一意に特�
 * `keywords` には監視するキーワードを入れる。 正規表現。 `[` や `.` はエスケープする必要があるので気をつけること。
 * `lastId` は「これよりもtweet status idが大きいものを処理対象とする」という意味。スクリプト終了時、取得したツイートの最大値に更新される。
 * `screenNames` には監視対象アカウントのスクリーンネームを書く。
-
-## Lambda関数登録・環境変数登録
-`twitter-serverless-watchdog.zip` をアップロードしてLambda関数をデプロイし、環境変数を設定する。特に暗号化はかけていない。
-
-| 環境変数名            | 意味                                              |
-|----------------------|---------------------------------------------------|
-| consumer_key         | Twitterコンシューマキー                            |
-| consumer_secret      | Twitterコンシューマシークレット                     |
-| access_token         | Twitterアクセストークン                            |
-| access_token_secret  | Twitterトークンシークレット                         |
-| region               | DynamoDB, S3のリージョン                           |
-| dynamoDbTableName    | DynamoDBのテーブル名                               |
-| dynamoDbKeyName      | DynamoDBのキー                                    |
-| dynamoDbKeyValue     | DynamoDBのキーの値                                |
-| s3BucketName         | 検索キーワードが記入されるS3バケット名（後述）       |
-| s3KeywordKeyName     | 検索キーワードが記入されるS3オブジェクト名（後述）    |
-
 
 ## S3バケットを準備
 監視対象のツイートを検知したら次のようなツイートが送信される。
@@ -110,6 +93,25 @@ DynamoDBとS3にアクセスできるロールを作成する。
     ]
 }
 ```
+
+## Lambda関数登録・環境変数登録
+`twitter-serverless-watchdog.zip` をアップロードしてLambda関数をデプロイし、環境変数を設定する。特に暗号化はかけていない。
+
+| 環境変数名            | 意味                                        |
+|----------------------|---------------------------------------------|
+| consumer_key         | Twitterコンシューマキー                      |
+| consumer_secret      | Twitterコンシューマシークレット              |
+| access_token         | Twitterアクセストークン                      |
+| access_token_secret  | Twitterトークンシークレット                  |
+| region               | DynamoDB, S3のリージョン                    |
+| dynamoDbTableName    | DynamoDBのテーブル名                        |
+| dynamoDbKeyName      | DynamoDBのキー                             |
+| dynamoDbKeyValue     | DynamoDBのキーの値                          |
+| s3BucketName         | 検索キーワードが記入されるS3バケット名       |
+| s3KeywordKeyName     | 検索キーワードが記入されるS3オブジェクト名    |
+
+## 定期実行設定
+CloudWatch Eventsで定期的に実行するように設定して終わり。
 
 # 動作検証
 ```
